@@ -28,7 +28,7 @@ namespace Unit_Tests
             };
 
             command.AddImage(10, 10, @"C:\Users\Marcus\Videos\EastGermany.png", "image1");
-            command.AddText(50, 50, "skrrrrr", 100, "white");
+            command.AddText(50, 50, @"hello, world", 100, "white");
             command.FFmpegOutput = (object sender, DataReceivedEventArgs e) =>
             {
                 Console.WriteLine(e.Data);
