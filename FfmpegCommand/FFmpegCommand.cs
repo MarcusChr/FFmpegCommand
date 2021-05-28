@@ -13,16 +13,38 @@ namespace com.marcuslc.ffmpegcommand
         private string _output;
         private string _ffmpegExec;
 
-        public FFmpegCommand(string output, string ffmpegExec = null)
+        public FFmpegCommand(string outputFile, string ffmpegExec = null)
+        {
+            _init(outputFile, ffmpegExec);
+        }
+
+        public FFmpegCommand(string inputFile, string outputFile, string ffmpegExec = null)
+        {
+            _init(outputFile, ffmpegExec);
+
+            _arguments.Add($"-i {inputFile}");
+        }
+
+        private void _init(string outputFile, string ffmpegExec)
         {
             _arguments = new LinkedList<string>();
-            _output = output;
+            _output = outputFile;
             _ffmpegExec = ffmpegExec ?? "ffmpeg";
         }
 
         public void SetFFmpegExec(string ffmpegExec)
         {
             _ffmpegExec = ffmpegExec;
+        }
+
+        public void AddCustomArgument(string argument)
+        {
+            _arguments.Add(argument);
+        }
+
+        public void AddImage(int x, int y, string imagePath)
+        {
+            _arguments.Add($"-i {imagePath} -filter_complex \"overlay = {x}:{y}\"");
         }
 
         public void Execute()
@@ -32,7 +54,7 @@ namespace com.marcuslc.ffmpegcommand
 
         public async Task ExecuteAsync()
         {
-            using(Process ffmpeg = new Process())
+            using (Process ffmpeg = new Process())
             {
                 ffmpeg.StartInfo = new ProcessStartInfo
                 {

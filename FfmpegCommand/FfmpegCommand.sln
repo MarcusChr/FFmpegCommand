@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31313.79
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FfmpegCommand", "FfmpegCommand.csproj", "{A1761867-F77C-45F0-AA2D-FA2CB9DF0AF5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FfmpegCommand", "FfmpegCommand.csproj", "{A1761867-F77C-45F0-AA2D-FA2CB9DF0AF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
