@@ -15,10 +15,20 @@ namespace Unit_Tests
             string output = @"C:\Users\Marcus\Videos\output.mp4";
             File.Delete(output);
 
-            FFmpegCommand command = new FFmpegCommand(@"C:\Users\Marcus\Videos\2021-01-05 11-53-13.mkv", @"C:\Users\Marcus\Videos\output.mp4", null);
+            FFmpegCommand command = new FFmpegCommand(@"C:\Users\Marcus\Videos\2021-01-05 11-53-13.mkv", @"C:\Users\Marcus\Videos\output.mp4", null)
+            {
+                DefaultArguments =
+                {
+                    "-vcodec libx264",
+                    "-crf 27",
+                    "-preset veryfast",
+                    "-c:a copy",
+                    "-s 960x540"
+                }
+            };
 
             command.AddImage(10, 10, @"C:\Users\Marcus\Videos\EastGermany.png", "image1");
-            command.AddText(50, 50, "skrrr?");
+            command.AddText(50, 50, "skrrrrr", 100, "white");
             command.FFmpegOutput = (object sender, DataReceivedEventArgs e) =>
             {
                 Console.WriteLine(e.Data);

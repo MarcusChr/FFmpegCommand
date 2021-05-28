@@ -15,6 +15,10 @@ namespace com.marcuslc.ffmpegcommand
         private string _ffmpegExec;
 
         public DataReceivedEventHandler FFmpegOutput;
+        public IList<string> DefaultArguments
+        {
+            get; private set;
+        }
 
         public FFmpegCommand(string output, string ffmpegExec = null)
         {
@@ -37,6 +41,7 @@ namespace com.marcuslc.ffmpegcommand
             _arguments = new Dictionary<string, FFmpegFilterDescription>();
             _output = output;
             _ffmpegExec = ffmpegExec ?? "ffmpeg";
+            DefaultArguments = new List<string>();
         }
 
         public void SetFFmpegExec(string ffmpegExec)
@@ -64,13 +69,13 @@ namespace com.marcuslc.ffmpegcommand
             };
         }
 
-        public void AddText(int x, int y, string text, string key = null)
+        public void AddText(int x, int y, string text, int fontsize = 24, string fontcolor = "white", string key = null)
         {
             key = _handleKey(key);
             //_arguments.Add(key, $"-filter_complex \"drawtext=text='{text}':x={x}:y={y}:fontsize=24:fontcolor=white\"");
             _arguments[key] = new FFmpegFilterDescription
             {
-                filterValues = $"drawtext=text='{text}':x={x}:y={y}:fontsize=24:fontcolor=white"
+                filterValues = $"drawtext=text='{text}':x={x}:y={y}:fontsize={fontsize}:fontcolor={fontcolor}"
             };
         }
 
@@ -116,7 +121,7 @@ namespace com.marcuslc.ffmpegcommand
         {
             var sourceStrings = new List<string>();
             var filterStrings = new List<string>();
-            var postfixString = new List<string>();
+            var postfixString = new List<string>(DefaultArguments);
             //argumentString.Append(string.Join(" ", _arguments.Values));
 
             foreach(var pair in _arguments)
