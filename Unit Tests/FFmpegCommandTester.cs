@@ -12,10 +12,12 @@ namespace Unit_Tests
         [TestMethod]
         public void MakeVideo()
         {
-            string output = @"C:\Users\Marcus\Videos\output.mp4";
+            string output = @"output.mp4";
+
+
             File.Delete(output);
 
-            FFmpegCommand command = new FFmpegCommand(@"C:\Users\Marcus\Videos\2021-01-05 11-53-13.mkv", @"C:\Users\Marcus\Videos\output.mp4", null)
+            FFmpegCommand command = new FFmpegCommand(@"media/countdown.mp4", output, null)
             {
                 DefaultArguments =
                 {
@@ -27,7 +29,7 @@ namespace Unit_Tests
                 }
             };
 
-            command.AddImage(10, 10, @"C:\Users\Marcus\Videos\EastGermany.png", "image1");
+            command.AddImage(10, 10, @"media/panda.jpg", "image1");
             command.AddText(50, 50, @"hello, world", 100, "white");
             command.FFmpegOutput = (object sender, DataReceivedEventArgs e) =>
             {
