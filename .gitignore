@@ -332,3 +332,7 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+#MacOS likes to mark its territory
+.DS_Store
+**/.DS_Store
