@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FfmpegCommand
+namespace com.marcuslc.ffmpegcommand
 {
     public struct FFmpegFilterDescription
     {
