@@ -57,6 +57,12 @@ namespace com.marcuslc.ffmpegcommand
             });
         }
 
+        public void AddCustomArgument(FFmpegFilterDescription command, string key = null)
+        {
+            key = _handleKey(key);
+            _arguments[key] = command;
+        }
+
         public void AddImage(int x, int y, string imagePath, string key = null)
         {
             key = _handleKey(key);
@@ -121,7 +127,6 @@ namespace com.marcuslc.ffmpegcommand
             var sourceStrings = new List<string>();
             var filterStrings = new List<string>();
             var postfixString = new List<string>(DefaultArguments);
-            //argumentString.Append(string.Join(" ", _arguments.Values));
 
             foreach(var pair in _arguments)
             {
@@ -140,7 +145,20 @@ namespace com.marcuslc.ffmpegcommand
 
             postfixString.Add(" \"" + _output + "\"");
 
-            return $"{string.Join(" ", sourceStrings)} -filter_complex \"{string.Join(",", filterStrings)}\" {string.Join(" ", postfixString)}";
+            StringBuilder argumentString = new StringBuilder();
+
+            argumentString.Append(string.Join(" ", sourceStrings));
+            argumentString.Append(" ");
+
+            if(filterStrings.Count > 0)
+            {
+                argumentString.Append($"-filter_complex \"{string.Join(",", filterStrings)}\" ");
+            }
+
+            argumentString.Append(string.Join(" ", postfixString));
+
+
+            return argumentString.ToString();
         }
 
         public override string ToString()
