@@ -18,6 +18,10 @@ namespace com.marcuslc.ffmpegcommand
         {
             get; private set;
         }
+        public FFmpegCommand()
+        {
+            _init(null, null);
+        }
 
         public FFmpegCommand(string output, string ffmpegExec = null)
         {
@@ -143,7 +147,10 @@ namespace com.marcuslc.ffmpegcommand
                 }
             }
 
-            postfixString.Add(" \"" + _output + "\"");
+            if (_output != null)
+            {
+                postfixString.Add(" \"" + _output + "\"");
+            }
 
             StringBuilder argumentString = new StringBuilder();
 
@@ -155,8 +162,10 @@ namespace com.marcuslc.ffmpegcommand
                 argumentString.Append($"-filter_complex \"{string.Join(",", filterStrings)}\" ");
             }
 
-            argumentString.Append(string.Join(" ", postfixString));
-
+            if (postfixString.Count > 0)
+            {
+                argumentString.Append(string.Join(" ", postfixString));
+            }
 
             return argumentString.ToString();
         }
