@@ -30,8 +30,8 @@ namespace Unit_Tests
                 }
             };
             */
-            command.AddImage(10, 10, @"media/panda.jpg", "image1");
-            command.AddText(50, 50, @"hello, world", 10, "white");
+            command.AddImage(@"media/panda.jpg", 100, 100, 10, 10, "image1");
+            command.AddText(250, 250, @"hello, world", 10, "red");
             command.FFmpegOutput = (object sender, DataReceivedEventArgs e) =>
             {
                 Console.WriteLine(e.Data);

@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace FfmpegCommand.Common.Output
 {
-    public class FileOutput : IFFMpegOutput
+    public class FileOutput : AbstractFFMpegOutput
     {
         public string _outputPath;
 
-        public FileOutput(string outputPath)
+        public FileOutput(string outputPath, string name) : base(name)
         {
             _outputPath = outputPath;
         }
 
-        public string GetOutputString()
+        public override string GetOutputString()
         {
             return _outputPath;
         }

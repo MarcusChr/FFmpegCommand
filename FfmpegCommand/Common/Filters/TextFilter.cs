@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FfmpegCommand.Common.Filters
 {
-    public class TextFilter : IFFmpegFilter
+    public class TextFilter : AbstractFFmpegFilter
     {
         public string Text;
         public int X;
@@ -15,7 +15,7 @@ namespace FfmpegCommand.Common.Filters
         public string FontColor = "white";
         public int FontSize = 24;
 
-        public TextFilter(string text, int x, int y)
+        public TextFilter(string text, int x, int y, string name) : base(name)
         {
             Text = text;
             X = x;
@@ -24,12 +24,12 @@ namespace FfmpegCommand.Common.Filters
 
         
 
-        public string GetFilterString()
+        public override string GetFilterString()
         {
             return $"drawtext=text='{Text}':x={X}:y={Y}:fontsize={FontSize}:fontcolor={FontColor}";
         }
 
-        public string GetInputString()
+        public override string GetInputString()
         {
             return null;
         }

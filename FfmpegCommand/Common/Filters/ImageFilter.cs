@@ -7,26 +7,31 @@ using System.Threading.Tasks;
 
 namespace FfmpegCommand.Common.Filters
 {
-    public class ImageFilter : IFFmpegFilter
+    public class ImageFilter : AbstractFFmpegFilter
     {
-        private string _imagePath;
-        private int _x, _y;
+        public string ImagePath;
+        public int X, Y;
 
-        public ImageFilter(string imagePath, int x, int y)
+        public int Width, Height;
+
+        public ImageFilter(string imagePath, int width, int height, string name, int x = 0, int y = 0) : base(name)
         {
-            _imagePath = imagePath;
-            _x = x;
-            _y = y;
+            ImagePath = imagePath;
+            Width = width;
+            Height = height;
+
+            X = x;
+            X = y;
         }
 
-        public string GetFilterString()
+        public override string GetFilterString()
         {
-            return $"overlay={_x}:{_y}";
+            return $"[1:v]scale={Width}:{Height} [{Name}],[0:v][{Name}]overlay={X}:{Y}";
         }
 
-        public string GetInputString()
+        public override string GetInputString()
         {
-            return $"-i \"{_imagePath}\"";
+            return $"-i \"{ImagePath}\"";
         }
     }
 }

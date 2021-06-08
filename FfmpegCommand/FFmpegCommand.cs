@@ -14,9 +14,9 @@ namespace com.marcuslc.ffmpegcommand
 {
     public class FFmpegCommand
     {
-        private IDictionary<string, IFFmpegInput> _inputs;
-        private IDictionary<string, IFFmpegFilter> _filters;
-        private IDictionary<string, IFFMpegOutput> _outputs;
+        private IList<AbstractFFmpegInput> _inputs;
+        private IList<AbstractFFmpegFilter> _filters;
+        private IList<AbstractFFMpegOutput> _outputs;
 
         //private string _output;
         private string _ffmpegExec;
@@ -43,14 +43,14 @@ namespace com.marcuslc.ffmpegcommand
             this.SetSingleOutputToFile(output);
 
             //_arguments.Add("input", $"-i \"{input}\"");
-            _inputs.Add("input", new FileInput(input));
+            _inputs.Add(new FileInput(input, "input"));
         }
 
         private void _init(string ffmpegExec)
         {
-            _inputs = new Dictionary<string, IFFmpegInput>();
-            _filters = new Dictionary<string, IFFmpegFilter>();
-            _outputs = new Dictionary<string, IFFMpegOutput>();
+            _inputs = new List<AbstractFFmpegInput>();
+            _filters = new List<AbstractFFmpegFilter>();
+            _outputs = new List<AbstractFFMpegOutput>();
 
             _ffmpegExec = ffmpegExec ?? "ffmpeg";
             //DefaultArguments = new List<string>();
@@ -71,24 +71,19 @@ namespace com.marcuslc.ffmpegcommand
         }
         */
 
-        public void AddInput(IFFmpegInput input, string key = null)
+        public void AddInput(AbstractFFmpegInput input, string key = null)
         {
-            key = _handleKey(key);
-
-            _inputs[key] = input;
+            _inputs.Add(input);
         }
 
-        public void AddFilter(IFFmpegFilter filter, string key = null)
+        public void AddFilter(AbstractFFmpegFilter filter, string key = null)
         {
-            key = _handleKey(key);
-            _filters[key] = filter;
+            _filters.Add(filter);
         }
 
-        public void AddOutput(IFFMpegOutput output, string key = null)
+        public void AddOutput(AbstractFFMpegOutput output, string key = null)
         {
-            key = _handleKey(key);
-
-            _outputs[key] = output;
+            _outputs.Add(output);
         }
 
         /*
@@ -101,24 +96,23 @@ namespace com.marcuslc.ffmpegcommand
 
         public void SetSingleOutputToFile(string outputFilePath)
         {
-            _outputs["output"] = new FileOutput(outputFilePath);
+            _outputs.Add(new FileOutput(outputFilePath, "output"));
         }
 
-        public void AddImage(int x, int y, string imagePath, string key = null)
+        public void AddImage(string imagePath, int width, int height, int x = 0, int y = 0,  string key = null)
         {
-            key = _handleKey(key);
             //_arguments.Add(key, $"-i \"{imagePath}\" -filter_complex \"overlay = {x}:{y}\"");
-            _filters[key] = new ImageFilter(imagePath, x, y);
+            _filters.Add(new ImageFilter(imagePath, width, height, key, x, y));
         }
 
         public void AddText(int x, int y, string text, int fontsize = 24, string fontcolor = "white", string key = null)
         {
             key = _handleKey(key);
-            _filters[key] = new TextFilter(text, x, y)
+            _filters.Add(new TextFilter(text, x, y, key)
             {
                 FontSize = fontsize,
                 FontColor = fontcolor
-            };
+            });
             //_arguments.Add(key, $"-filter_complex \"drawtext=text='{text}':x={x}:y={y}:fontsize=24:fontcolor=white\"");
             /*
             _arguments[key] = new FFmpegFilterDescription
@@ -193,18 +187,18 @@ namespace com.marcuslc.ffmpegcommand
             //    postfixString.Add(" \"" + _output + "\"");
             //}
 
-            foreach(IFFmpegInput input in _inputs.Values)
+            foreach(AbstractFFmpegInput input in _inputs)
             {
                 sourceStrings.Add(input.GetInputString());
             }
 
-            foreach(IFFmpegFilter filter in _filters.Values)
+            foreach(AbstractFFmpegFilter filter in _filters)
             {
                 sourceStrings.Add(filter.GetInputString());
                 filterStrings.Add(filter.GetFilterString());
             }
 
-            foreach(IFFMpegOutput output in _outputs.Values)
+            foreach(AbstractFFMpegOutput output in _outputs)
             {
                 outputString.Add(output.GetOutputString());
             }
