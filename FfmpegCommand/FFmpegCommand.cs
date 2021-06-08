@@ -1,4 +1,9 @@
-﻿using System;
+﻿using FfmpegCommand;
+using FfmpegCommand.Common.Filters;
+using FfmpegCommand.Common.Input;
+using FfmpegCommand.Common.Output;
+using FfmpegCommand.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,8 +14,11 @@ namespace com.marcuslc.ffmpegcommand
 {
     public class FFmpegCommand
     {
-        private IDictionary<string, FFmpegFilterDescription> _arguments;
-        private string _output;
+        private IDictionary<string, IFFmpegInput> _inputs;
+        private IDictionary<string, IFFmpegFilter> _filters;
+        private IDictionary<string, IFFMpegOutput> _outputs;
+
+        //private string _output;
         private string _ffmpegExec;
 
         public DataReceivedEventHandler FFmpegOutput;
@@ -20,38 +28,39 @@ namespace com.marcuslc.ffmpegcommand
         }
         public FFmpegCommand()
         {
-            _init(null, null);
+            _init(null);
         }
 
         public FFmpegCommand(string output, string ffmpegExec = null)
         {
-            _init(output, ffmpegExec);
+            _init(ffmpegExec);
+            this.SetSingleOutputToFile(output);
         }
 
         public FFmpegCommand(string input, string output, string ffmpegExec = null)
         {
-            _init(output, ffmpegExec);
+            _init(ffmpegExec);
+            this.SetSingleOutputToFile(output);
 
             //_arguments.Add("input", $"-i \"{input}\"");
-            _arguments.Add("input", new FFmpegFilterDescription
-            {
-                source = $"-i \"{input}\""
-            });
+            _inputs.Add("input", new FileInput(input));
         }
 
-        private void _init(string output, string ffmpegExec)
+        private void _init(string ffmpegExec)
         {
-            _arguments = new Dictionary<string, FFmpegFilterDescription>();
-            _output = output;
+            _inputs = new Dictionary<string, IFFmpegInput>();
+            _filters = new Dictionary<string, IFFmpegFilter>();
+            _outputs = new Dictionary<string, IFFMpegOutput>();
+
             _ffmpegExec = ffmpegExec ?? "ffmpeg";
-            DefaultArguments = new List<string>();
+            //DefaultArguments = new List<string>();
         }
 
         public void SetFFmpegExec(string ffmpegExec)
         {
             _ffmpegExec = ffmpegExec;
         }
-
+        /*
         public void AddCustomArgument(string argument, string key = null)
         {
             key = _handleKey(key);
@@ -60,38 +69,70 @@ namespace com.marcuslc.ffmpegcommand
                 source = argument
             });
         }
+        */
 
+        public void AddInput(IFFmpegInput input, string key = null)
+        {
+            key = _handleKey(key);
+
+            _inputs[key] = input;
+        }
+
+        public void AddFilter(IFFmpegFilter filter, string key = null)
+        {
+            key = _handleKey(key);
+            _filters[key] = filter;
+        }
+
+        public void AddOutput(IFFMpegOutput output, string key = null)
+        {
+            key = _handleKey(key);
+
+            _outputs[key] = output;
+        }
+
+        /*
         public void AddCustomArgument(FFmpegFilterDescription command, string key = null)
         {
             key = _handleKey(key);
             _arguments[key] = command;
+        }
+        */
+
+        public void SetSingleOutputToFile(string outputFilePath)
+        {
+            _outputs["output"] = new FileOutput(outputFilePath);
         }
 
         public void AddImage(int x, int y, string imagePath, string key = null)
         {
             key = _handleKey(key);
             //_arguments.Add(key, $"-i \"{imagePath}\" -filter_complex \"overlay = {x}:{y}\"");
-            _arguments[key] = new FFmpegFilterDescription
-            {
-                source = $"-i \"{imagePath}\"",
-                filterValues = $"overlay={x}:{y}"
-            };
+            _filters[key] = new ImageFilter(imagePath, x, y);
         }
 
         public void AddText(int x, int y, string text, int fontsize = 24, string fontcolor = "white", string key = null)
         {
             key = _handleKey(key);
+            _filters[key] = new TextFilter(text, x, y)
+            {
+                FontSize = fontsize,
+                FontColor = fontcolor
+            };
             //_arguments.Add(key, $"-filter_complex \"drawtext=text='{text}':x={x}:y={y}:fontsize=24:fontcolor=white\"");
+            /*
             _arguments[key] = new FFmpegFilterDescription
             {
                 filterValues = $"drawtext=text='{text}':x={x}:y={y}:fontsize={fontsize}:fontcolor={fontcolor}"
             };
+            */
         }
-
+        /*
         public bool RemoveKey(string key)
         {
             return _arguments.Remove(key);
         }
+        */
 
         public void Execute()
         {
@@ -121,8 +162,6 @@ namespace com.marcuslc.ffmpegcommand
                     ffmpeg.ErrorDataReceived += FFmpegOutput;
                 }
                 await ffmpeg.WaitForExitAsync();
-                //ffmpeg.WaitForExit();
-                //Console.WriteLine(ffmpeg.StandardError.ReadToEnd());
             }
         }
 
@@ -130,41 +169,60 @@ namespace com.marcuslc.ffmpegcommand
         {
             var sourceStrings = new List<string>();
             var filterStrings = new List<string>();
-            var postfixString = new List<string>(DefaultArguments);
+            var outputString = new List<string>();
 
-            foreach(var pair in _arguments)
+            //foreach (var pair in _arguments)
+            //{
+            //    var filterDesc = pair.Value;
+
+            //    if (filterDesc.source != null)
+            //    {
+            //        sourceStrings.Add(filterDesc.source);
+            //    }
+
+            //    if (filterDesc.filterValues != null)
+            //    {
+            //        filterStrings.Add(filterDesc.filterValues);
+            //    }
+            //}
+
+
+
+            //if (_output != null)
+            //{
+            //    postfixString.Add(" \"" + _output + "\"");
+            //}
+
+            foreach(IFFmpegInput input in _inputs.Values)
             {
-                var filterDesc = pair.Value;
-
-                if(filterDesc.source != null)
-                {
-                    sourceStrings.Add(filterDesc.source);
-                }
-
-                if(filterDesc.filterValues != null)
-                {
-                    filterStrings.Add(filterDesc.filterValues);
-                }
+                sourceStrings.Add(input.GetInputString());
             }
 
-            if (_output != null)
+            foreach(IFFmpegFilter filter in _filters.Values)
             {
-                postfixString.Add(" \"" + _output + "\"");
+                sourceStrings.Add(filter.GetInputString());
+                filterStrings.Add(filter.GetFilterString());
             }
+
+            foreach(IFFMpegOutput output in _outputs.Values)
+            {
+                outputString.Add(output.GetOutputString());
+            }
+
 
             StringBuilder argumentString = new StringBuilder();
 
             argumentString.Append(string.Join(" ", sourceStrings));
             argumentString.Append(" ");
 
-            if(filterStrings.Count > 0)
+            if (filterStrings.Count > 0)
             {
                 argumentString.Append($"-filter_complex \"{string.Join(",", filterStrings)}\" ");
             }
 
-            if (postfixString.Count > 0)
+            if (outputString.Count > 0)
             {
-                argumentString.Append(string.Join(" ", postfixString));
+                argumentString.Append(string.Join(" ", outputString));
             }
 
             return argumentString.ToString();
