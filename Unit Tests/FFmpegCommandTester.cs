@@ -17,7 +17,8 @@ namespace Unit_Tests
 
             File.Delete(output);
 
-            FFmpegCommand command = new FFmpegCommand(@"media/countdown.mp4", output, null)
+            FFmpegCommand command = new FFmpegCommand(@"media/countdown.mp4", output, null);
+            /*
             {
                 DefaultArguments =
                 {
@@ -28,9 +29,9 @@ namespace Unit_Tests
                     "-s 960x540"
                 }
             };
-
-            command.AddImage(10, 10, @"media/panda.jpg", "image1");
-            command.AddText(50, 50, @"hello, world", 100, "white");
+            */
+            command.AddImage(@"media/panda.jpg", 100, 100, 10, 10, "image1");
+            command.AddText(250, 250, @"hello, world", 10, "red");
             command.FFmpegOutput = (object sender, DataReceivedEventArgs e) =>
             {
                 Console.WriteLine(e.Data);

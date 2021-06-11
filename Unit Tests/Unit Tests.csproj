@@ -37,4 +37,13 @@
   <ItemGroup>
     <Folder Include="media\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="media\countdown.mp4">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="media\panda.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
